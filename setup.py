@@ -7,7 +7,7 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload -r pypi')
     sys.exit()
 
-SCHEDULE_VERSION = '0.3.2'
+SCHEDULE_VERSION = '0.3.3'
 SCHEDULE_DOWNLOAD_URL = (
     'https://github.com/aboutaaron/scheduler/tarball/' + SCHEDULE_VERSION
 )
