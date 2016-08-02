@@ -1,4 +1,4 @@
-schedule
+scheduler
 ========
 
 
@@ -15,6 +15,8 @@ schedule
         :target: https://pypi.python.org/pypi/schedule
 
 Python job scheduling for humans.
+
+**This fork changes all references of "schedule" to "scheduler." Otherwise, it's the same**
 
 An in-process scheduler for periodic jobs that uses the builder pattern
 for configuration. Schedule lets you run Python functions (or any other
@@ -35,24 +37,24 @@ Usage
 
 .. code-block:: bash
 
-    $ pip install schedule
+    $ pip install https://github.com/aboutaaron/scheduler/zipball/master
 
 .. code-block:: python
 
-    import schedule
+    import scheduler
     import time
 
     def job():
         print("I'm working...")
 
-    schedule.every(10).minutes.do(job)
-    schedule.every().hour.do(job)
-    schedule.every().day.at("10:30").do(job)
-    schedule.every().monday.do(job)
-    schedule.every().wednesday.at("13:15").do(job)
+    scheduler.every(10).minutes.do(job)
+    scheduler.every().hour.do(job)
+    scheduler.every().day.at("10:30").do(job)
+    scheduler.every().monday.do(job)
+    scheduler.every().wednesday.at("13:15").do(job)
 
     while True:
-        schedule.run_pending()
+        scheduler.run_pending()
         time.sleep(1)
 
 FAQ
