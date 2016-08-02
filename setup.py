@@ -9,7 +9,7 @@ if sys.argv[-1] == 'publish':
 
 SCHEDULE_VERSION = '0.3.2'
 SCHEDULE_DOWNLOAD_URL = (
-    'https://github.com/dbader/schedule/tarball/' + SCHEDULE_VERSION
+    'https://github.com/aboutaaron/scheduler/tarball/' + SCHEDULE_VERSION
 )
 
 def read_file(filename):
@@ -20,8 +20,8 @@ def read_file(filename):
         return f.read()
 
 setup(
-    name='schedule',
-    packages=['schedule'],
+    name='scheduler',
+    packages=['scheduler'],
     version=SCHEDULE_VERSION,
     description='Job scheduling for humans.',
     long_description=(
@@ -31,7 +31,7 @@ setup(
     license=read_file('LICENSE.txt'),
     author='Daniel Bader',
     author_email='mail@dbader.org',
-    url='https://github.com/dbader/schedule',
+    url='https://github.com/aboutaaron/scheduler',
     download_url=SCHEDULE_DOWNLOAD_URL,
     keywords=[
         'schedule', 'periodic', 'jobs', 'scheduling', 'clockwork',

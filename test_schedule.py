@@ -1,4 +1,4 @@
-"""Unit tests for schedule.py"""
+"""Unit tests for scheduler.py"""
 import datetime
 import functools
 import mock
@@ -8,8 +8,8 @@ import unittest
 # "class already defined", and "too many public methods" messages:
 # pylint: disable-msg=R0201,C0111,E0102,R0904,R0901
 
-import schedule
-from schedule import every
+import scheduler
+from scheduler import every
 
 
 def make_mock_job(name=None):
@@ -48,7 +48,7 @@ class mock_datetime(object):
 
 class SchedulerTests(unittest.TestCase):
     def setUp(self):
-        schedule.clear()
+        scheduler.clear()
 
     def test_time_units(self):
         assert every().seconds.unit == 'seconds'
@@ -82,7 +82,7 @@ class SchedulerTests(unittest.TestCase):
     def test_next_run_time(self):
         with mock_datetime(2010, 1, 6, 12, 15):
             mock_job = make_mock_job()
-            assert schedule.next_run() is None
+            assert scheduler.next_run() is None
             assert every().minute.do(mock_job).next_run.minute == 16
             assert every(5).minutes.do(mock_job).next_run.minute == 20
             assert every().hour.do(mock_job).next_run.hour == 13
@@ -103,13 +103,13 @@ class SchedulerTests(unittest.TestCase):
         every().minute.do(mock_job)
         every().hour.do(mock_job)
         every().day.at('11:00').do(mock_job)
-        schedule.run_all()
+        scheduler.run_all()
         assert mock_job.call_count == 3
 
     def test_job_func_args_are_passed_on(self):
         mock_job = make_mock_job()
         every().second.do(mock_job, 1, 2, 'three', foo=23, bar={})
-        schedule.run_all()
+        scheduler.run_all()
         mock_job.assert_called_once_with(1, 2, 'three', foo=23, bar={})
 
     def test_to_string(self):
@@ -151,79 +151,79 @@ class SchedulerTests(unittest.TestCase):
             every().hour.do(mock_job)
             every().day.do(mock_job)
             every().sunday.do(mock_job)
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 6, 12, 16):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 1
 
         with mock_datetime(2010, 1, 6, 13, 16):
             mock_job.reset_mock()
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 2
 
         with mock_datetime(2010, 1, 7, 13, 16):
             mock_job.reset_mock()
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 3
 
         with mock_datetime(2010, 1, 10, 13, 16):
             mock_job.reset_mock()
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 4
 
     def test_run_every_weekday_at_specific_time_today(self):
         mock_job = make_mock_job()
         with mock_datetime(2010, 1, 6, 13, 16):
             every().wednesday.at('14:12').do(mock_job)
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 6, 14, 16):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 1
 
     def test_run_every_weekday_at_specific_time_past_today(self):
         mock_job = make_mock_job()
         with mock_datetime(2010, 1, 6, 13, 16):
             every().wednesday.at('13:15').do(mock_job)
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 13, 13, 14):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 13, 13, 16):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 1
 
     def test_run_every_n_days_at_specific_time(self):
         mock_job = make_mock_job()
         with mock_datetime(2010, 1, 6, 11, 29):
             every(2).days.at('11:30').do(mock_job)
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 6, 11, 31):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 7, 11, 31):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 8, 11, 29):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 0
 
         with mock_datetime(2010, 1, 8, 11, 31):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 1
 
         with mock_datetime(2010, 1, 10, 11, 31):
-            schedule.run_pending()
+            scheduler.run_pending()
             assert mock_job.call_count == 2
 
     def test_next_run_property(self):
@@ -233,28 +233,28 @@ class SchedulerTests(unittest.TestCase):
             daily_job = make_mock_job('daily')
             every().day.do(daily_job)
             every().hour.do(hourly_job)
-            assert len(schedule.jobs) == 2
+            assert len(scheduler.jobs) == 2
             # Make sure the hourly job is first
-            assert schedule.next_run() == original_datetime(2010, 1, 6, 14, 16)
-            assert schedule.idle_seconds() == 60 * 60
+            assert scheduler.next_run() == original_datetime(2010, 1, 6, 14, 16)
+            assert scheduler.idle_seconds() == 60 * 60
 
     def test_cancel_job(self):
         def stop_job():
-            return schedule.CancelJob
+            return scheduler.CancelJob
         mock_job = make_mock_job()
 
         every().second.do(stop_job)
         mj = every().second.do(mock_job)
-        assert len(schedule.jobs) == 2
+        assert len(scheduler.jobs) == 2
 
-        schedule.run_all()
-        assert len(schedule.jobs) == 1
-        assert schedule.jobs[0] == mj
+        scheduler.run_all()
+        assert len(scheduler.jobs) == 1
+        assert scheduler.jobs[0] == mj
 
-        schedule.cancel_job('Not a job')
-        assert len(schedule.jobs) == 1
-        schedule.default_scheduler.cancel_job('Not a job')
-        assert len(schedule.jobs) == 1
+        scheduler.cancel_job('Not a job')
+        assert len(scheduler.jobs) == 1
+        scheduler.default_scheduler.cancel_job('Not a job')
+        assert len(scheduler.jobs) == 1
 
-        schedule.cancel_job(mj)
-        assert len(schedule.jobs) == 0
+        scheduler.cancel_job(mj)
+        assert len(scheduler.jobs) == 0
